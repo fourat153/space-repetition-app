@@ -45,9 +45,9 @@ def test_short_password_rejected(client):
     [
         ("secret123!", "an uppercase letter"),
         ("SECRET123!", "a lowercase letter"),
-        ("Secretabc!", "a digit"),
-        ("Secret1234", "a special character"),
-        ("secretsecret", "an uppercase letter, a digit, a special character"),
+        ("Secretabc!", "a number"),
+        ("Secret1234", "a symbol"),
+        ("secretsecret", "an uppercase letter, a number, a symbol"),
     ],
 )
 def test_weak_password_rejected(client, password, missing):

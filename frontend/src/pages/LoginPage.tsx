@@ -1,15 +1,25 @@
 import { useState, type FormEvent } from "react";
 import { Navigate } from "react-router-dom";
-import { AlertCircle, Check, Layers, Loader2, X } from "lucide-react";
+import { AlertCircle, Layers, Loader2 } from "lucide-react";
 
 import { useAuth } from "@/auth/AuthContext";
-import { isStrongPassword, passwordRules } from "@/lib/password";
+import { formatList, getPasswordStrength, isStrongPassword } from "@/lib/password";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+// Indexed by strength score (1–4).
+const STRENGTH_BAR = ["", "bg-red-500", "bg-orange-500", "bg-amber-400", "bg-emerald-500"];
+const STRENGTH_TEXT = [
+  "",
+  "text-red-600 dark:text-red-400",
+  "text-orange-600 dark:text-orange-400",
+  "text-amber-600 dark:text-amber-400",
+  "text-emerald-600 dark:text-emerald-400",
+];
 
 export function LoginPage() {
   const { user, login, register } = useAuth();
@@ -24,6 +34,7 @@ export function LoginPage() {
 
   const isLogin = mode === "login";
   const passwordsMismatch = confirmPassword.length > 0 && confirmPassword !== password;
+  const strength = getPasswordStrength(password);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -89,27 +100,27 @@ export function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 minLength={isLogin ? undefined : 8}
                 maxLength={isLogin ? undefined : 128}
-                aria-describedby={isLogin ? undefined : "password-rules"}
+                aria-describedby={isLogin ? undefined : "password-strength"}
                 required
               />
-              {!isLogin && (
-                <ul id="password-rules" className="grid gap-1 text-xs" aria-live="polite">
-                  {passwordRules.map((rule) => {
-                    const ok = rule.test(password);
-                    return (
-                      <li
-                        key={rule.label}
+              {!isLogin && password.length > 0 && (
+                <div id="password-strength" className="grid gap-1.5" aria-live="polite">
+                  <div className="flex gap-1" aria-hidden="true">
+                    {[1, 2, 3, 4].map((segment) => (
+                      <div
+                        key={segment}
                         className={cn(
-                          "flex items-center gap-1.5",
-                          ok ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground",
+                          "h-1 flex-1 rounded-full transition-colors duration-300",
+                          segment <= strength.score ? STRENGTH_BAR[strength.score] : "bg-muted",
                         )}
-                      >
-                        {ok ? <Check className="size-3.5" /> : <X className="size-3.5" />}
-                        {rule.label}
-                      </li>
-                    );
-                  })}
-                </ul>
+                      />
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground text-xs">
+                    <span className={cn("font-medium", STRENGTH_TEXT[strength.score])}>{strength.label}</span>
+                    {strength.missing.length > 0 && <> · Needs {formatList(strength.missing)}.</>}
+                  </p>
+                </div>
               )}
             </div>
             {!isLogin && (

@@ -8,8 +8,8 @@ from pydantic_core import PydanticCustomError
 PASSWORD_RULES: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"[a-z]"), "a lowercase letter"),
     (re.compile(r"[A-Z]"), "an uppercase letter"),
-    (re.compile(r"\d"), "a digit"),
-    (re.compile(r"[^A-Za-z0-9\s]"), "a special character"),
+    (re.compile(r"\d"), "a number"),
+    (re.compile(r"[^A-Za-z0-9\s]"), "a symbol"),
 ]
 NO_WHITESPACE = re.compile(r"^\S+$")
 
