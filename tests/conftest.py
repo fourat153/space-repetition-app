@@ -26,7 +26,7 @@ def client(db_session):
     app.dependency_overrides.clear()
 
 
-def register_and_login(client: TestClient, email: str, password: str = "secret123") -> dict:
+def register_and_login(client: TestClient, email: str, password: str = "Secret123!") -> dict:
     """Creates a user and returns the Authorization header for them."""
     client.post("/api/v1/auth/register", json={"email": email, "password": password})
     r = client.post("/api/v1/auth/login", data={"username": email, "password": password})
