@@ -17,7 +17,7 @@ def auth(db_session):
 
 @pytest.fixture
 def user(auth):
-    return auth.register(UserCreate(email="ahmed@example.com", password="secret123"))
+    return auth.register(UserCreate(email="ahmed@example.com", password="Secret123!"))
 
 
 @pytest.fixture
@@ -26,12 +26,12 @@ def decks(db_session, user):
 
 
 def test_register_hashes_password(user):
-    assert user.hashed_password != "secret123"
+    assert user.hashed_password != "Secret123!"
     assert user.hashed_password.startswith("$argon2")
 
 
 def test_login_and_token_roundtrip(auth, user):
-    token = auth.login("AHMED@example.com", "secret123").access_token
+    token = auth.login("AHMED@example.com", "Secret123!").access_token
     assert auth.get_user_from_token(token).id == user.id
 
 
@@ -68,7 +68,7 @@ def test_delete_reports_card_count(db_session, decks):
 
 def test_users_are_isolated(db_session, auth, decks):
     deck = decks.create(DeckCreate(name="Spanish"))
-    other = auth.register(UserCreate(email="other@example.com", password="secret123"))
+    other = auth.register(UserCreate(email="other@example.com", password="Secret123!"))
     other_decks = DeckService(db_session, other)
 
     assert other_decks.list() == []
